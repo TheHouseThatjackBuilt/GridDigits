@@ -38,10 +38,10 @@ export function ControlPanel({
           Есть ли ходы?
         </button>
         <button type="button" onClick={onUndo} disabled={!canUndo}>
-          Undo
+          Ход назад
         </button>
         <button type="button" onClick={onNewGame}>
-          New Game
+          Новая игра
         </button>
       </div>
     </aside>
