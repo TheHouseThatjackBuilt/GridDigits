@@ -1,6 +1,9 @@
-﻿.idea/
+.idea/
 node_modules/
 dist/
 .yarn/
 .pnp.*
 .DS_Store
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
