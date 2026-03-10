@@ -141,26 +141,6 @@ function getCellIndex(state: GameState, cellId: number): number {
   return state.cells.findIndex((cell) => cell.id === cellId);
 }
 
-function canWrapByReadingOrder(
-  firstIndex: number,
-  secondIndex: number,
-  width: number,
-): boolean {
-  const earlierIndex = Math.min(firstIndex, secondIndex);
-  const laterIndex = Math.max(firstIndex, secondIndex);
-  const earlierRow = Math.floor(earlierIndex / width);
-  const laterRow = Math.floor(laterIndex / width);
-
-  if (earlierRow === laterRow) {
-    return false;
-  }
-
-  const earlierColumn = earlierIndex % width;
-  const laterColumn = laterIndex % width;
-
-  return laterColumn <= earlierColumn;
-}
-
 function getStepBetween(
   firstIndex: number,
   secondIndex: number,
@@ -179,7 +159,7 @@ function getStepBetween(
     return firstIndex < secondIndex ? width : -width;
   }
 
-  if (canWrapByReadingOrder(firstIndex, secondIndex, width)) {
+  if (firstRow !== secondRow) {
     return firstIndex < secondIndex ? 1 : -1;
   }
 
