@@ -255,22 +255,94 @@ button {
 
 @media (max-width: 640px) {
   :root {
-    --cell-size: 2.55rem;
+    --cell-size: clamp(2rem, calc((100vw - 2.75rem) / 9.35), 2.8rem);
   }
 
   .app-shell {
-    width: min(100% - 1rem, 1100px);
-    padding-top: 1rem;
+    width: 100%;
+    padding: 0.45rem 0.25rem 1.5rem;
   }
 
   .hero-card,
   .game-card {
-    padding: 1rem;
-    border-radius: 18px;
+    padding: 0.65rem;
+    border-radius: 16px;
+  }
+
+  .control-panel {
+    gap: 0.6rem;
+  }
+
+  .stats-card {
+    padding: 0.8rem 0.9rem;
+    border-radius: 15px;
+  }
+
+  .stats-value {
+    font-size: 1.65rem;
+  }
+
+  .actions {
+    gap: 0.55rem;
+  }
+
+  .actions button {
+    padding: 0.75rem 0.85rem;
+    border-radius: 14px;
+  }
+
+  .game-card {
+    margin-top: 0.75rem;
   }
 
   .status-row {
     align-items: flex-start;
     flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .status-message {
+    font-size: 0.95rem;
+  }
+
+  .board-shell {
+    display: flex;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  .board-grid {
+    width: fit-content;
+    min-width: 0;
+    padding: 0.2rem 0.12rem;
+  }
+
+  .board-dot {
+    padding-left: 0.08rem;
+    font-size: clamp(1.15rem, calc(var(--cell-size) * 0.82), 1.55rem);
+  }
+
+  .notebook-cell {
+    font-size: clamp(1.2rem, calc(var(--cell-size) * 0.76), 1.55rem);
+  }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --cell-size: clamp(1.9rem, calc((100vw - 2.1rem) / 9.3), 2.45rem);
+  }
+
+  .app-shell {
+    padding-inline: 0.15rem;
+  }
+
+  .hero-card,
+  .game-card {
+    padding: 0.55rem;
+  }
+
+  .board-grid {
+    padding: 0.15rem 0.05rem;
   }
 }
