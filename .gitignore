@@ -1,0 +1,6 @@
+﻿.idea/
+node_modules/
+dist/
+.yarn/
+.pnp.*
+.DS_Store
