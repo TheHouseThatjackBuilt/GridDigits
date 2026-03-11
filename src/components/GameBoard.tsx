@@ -1,11 +1,11 @@
-﻿import type { AvailablePair, GameCell } from "../game/engine";
-import { GRID_WIDTH } from "../game/engine";
+import type { AvailablePair, GameCell } from "@/game/types";
+import { GRID_WIDTH } from "@/game/types";
 import { NotebookCell } from "./NotebookCell";
 
 interface GameBoardProps {
   cells: GameCell[];
   selectedIds: number[];
-  hintPair: AvailablePair | null;
+  hintPairs: AvailablePair[];
   onCellClick: (cellId: number) => void;
 }
 
@@ -19,19 +19,28 @@ function chunkCells(cells: GameCell[]): GameCell[][] {
   return rows;
 }
 
+function collectHintedIds(hintPairs: AvailablePair[]): Set<number> {
+  const hintedIds = new Set<number>();
+
+  for (const pair of hintPairs) {
+    hintedIds.add(pair.firstId);
+    hintedIds.add(pair.secondId);
+  }
+
+  return hintedIds;
+}
+
 export function GameBoard({
   cells,
   selectedIds,
-  hintPair,
+  hintPairs,
   onCellClick,
 }: GameBoardProps) {
   const rows = chunkCells(cells);
-  const hintedIds = new Set<number>(
-    hintPair === null ? [] : [hintPair.firstId, hintPair.secondId],
-  );
+  const hintedIds = collectHintedIds(hintPairs);
 
   return (
-    <section className="board-shell" aria-label="Игровое поле">
+    <section className="board-shell" aria-label="\u0418\u0433\u0440\u043e\u0432\u043e\u0435 \u043f\u043e\u043b\u0435">
       <div className="board-grid">
         {rows.map((row, index) => {
           const isLastRow = index === rows.length - 1;
