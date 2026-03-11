@@ -2,6 +2,17 @@ import { cloneCells, cloneSnapshot, isDigit, isRecord } from "./helpers";
 import { GRID_WIDTH } from "./types";
 import type { GameCell, GameSnapshot, GameState } from "./types";
 
+interface PersistedGameState {
+  width: number;
+  cells: GameCell[];
+  moveCount: number;
+  nextCellId: number;
+}
+
+interface LegacyGameState extends PersistedGameState {
+  history: GameSnapshot[];
+}
+
 function isGameCell(value: unknown): value is GameCell {
   return (
     isRecord(value) &&
@@ -27,7 +38,7 @@ function isGameSnapshot(value: unknown): value is GameSnapshot {
   );
 }
 
-function isGameState(value: unknown): value is GameState {
+function isPersistedGameState(value: unknown): value is PersistedGameState {
   return (
     isRecord(value) &&
     value.width === GRID_WIDTH &&
@@ -36,16 +47,28 @@ function isGameState(value: unknown): value is GameState {
     typeof value.moveCount === "number" &&
     Number.isInteger(value.moveCount) &&
     value.moveCount >= 0 &&
-    Array.isArray(value.history) &&
-    value.history.every(isGameSnapshot) &&
     typeof value.nextCellId === "number" &&
     Number.isInteger(value.nextCellId) &&
     value.nextCellId >= 1
   );
 }
 
+function isLegacyGameState(value: unknown): value is LegacyGameState {
+  return (
+    isRecord(value) &&
+    isPersistedGameState(value) &&
+    Array.isArray(value.history) &&
+    value.history.every(isGameSnapshot)
+  );
+}
+
 export function serializeGameState(state: GameState): string {
-  return JSON.stringify(state);
+  return JSON.stringify({
+    width: state.width,
+    cells: state.cells,
+    moveCount: state.moveCount,
+    nextCellId: state.nextCellId,
+  });
 }
 
 export function parseGameState(serialized: string | null): GameState | null {
@@ -54,9 +77,19 @@ export function parseGameState(serialized: string | null): GameState | null {
   }
 
   try {
-    const parsed: unknown = JSON.parse(serialized);
+    const parsed = JSON.parse(serialized) as unknown;
 
-    if (!isGameState(parsed)) {
+    if (isLegacyGameState(parsed)) {
+      return {
+        width: parsed.width,
+        cells: cloneCells(parsed.cells),
+        moveCount: parsed.moveCount,
+        history: parsed.history.map(cloneSnapshot).slice(-1),
+        nextCellId: parsed.nextCellId,
+      };
+    }
+
+    if (!isPersistedGameState(parsed)) {
       return null;
     }
 
@@ -64,7 +97,7 @@ export function parseGameState(serialized: string | null): GameState | null {
       width: parsed.width,
       cells: cloneCells(parsed.cells),
       moveCount: parsed.moveCount,
-      history: parsed.history.map(cloneSnapshot),
+      history: [],
       nextCellId: parsed.nextCellId,
     };
   } catch {

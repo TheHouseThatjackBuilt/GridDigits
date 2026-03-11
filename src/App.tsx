@@ -66,7 +66,11 @@ export default function App() {
   );
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, serializeGameState(game));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, serializeGameState(game));
+    } catch (error) {
+      console.warn("Failed to persist game state.", error);
+    }
   }, [game]);
 
   const handleCellClick = (cellId: number) => {
