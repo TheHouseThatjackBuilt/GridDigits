@@ -16,6 +16,10 @@ import type {
   UndoAttemptResult,
 } from "./types";
 
+function createSingleStepHistory(state: GameState) {
+  return [snapshotState(state)];
+}
+
 export function createNewGame(): GameState {
   const initialCells = createCellsFromDigits(digitsFromString(START_SEQUENCE));
 
@@ -74,7 +78,7 @@ export function crossPair(
       width: state.width,
       cells: nextCells,
       moveCount: state.moveCount + 1,
-      history: [...state.history, snapshotState(state)],
+      history: createSingleStepHistory(state),
       nextCellId: state.nextCellId,
     },
   };
@@ -106,7 +110,7 @@ export function appendRemainingDigits(state: GameState): AppendAttemptResult {
       width: state.width,
       cells: [...cloneCells(state.cells), ...appendedCells],
       moveCount: state.moveCount + 1,
-      history: [...state.history, snapshotState(state)],
+      history: createSingleStepHistory(state),
       nextCellId: state.nextCellId + appendedCells.length,
     },
   };
