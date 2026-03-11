@@ -6,7 +6,7 @@ import {
   canUndo,
   createNewGame,
   crossPair,
-  findAvailablePair,
+  findAvailablePairs,
   getCellCoordinates,
   getRemainingCount,
   isVictory,
@@ -45,21 +45,22 @@ function pairFailureMessage(reason: PairFailureReason): string {
   }
 }
 
-function formatPairHint(game: GameState, pair: AvailablePair): string {
-  const first = getCellCoordinates(game, pair.firstId);
-  const second = getCellCoordinates(game, pair.secondId);
+function formatPairHint(game: GameState, pairs: AvailablePair[]): string {
+  const firstPair = pairs[0];
+  const first = getCellCoordinates(game, firstPair.firstId);
+  const second = getCellCoordinates(game, firstPair.secondId);
 
   if (first === null || second === null) {
-    return "Ход найден.";
+    return `Найдено пар: ${pairs.length}.`;
   }
 
-  return `Есть ход: (${first.row}, ${first.column}) и (${second.row}, ${second.column}).`;
+  return `Найдено пар: ${pairs.length}. Например: (${first.row}, ${first.column}) и (${second.row}, ${second.column}).`;
 }
 
 export default function App() {
   const [game, setGame] = useState<GameState>(getInitialGameState);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [hintPair, setHintPair] = useState<AvailablePair | null>(null);
+  const [hintPairs, setHintPairs] = useState<AvailablePair[]>([]);
   const [message, setMessage] = useState<string>(
     "Выберите две цифры в строке, столбце или через перенос строки.",
   );
@@ -80,7 +81,7 @@ export default function App() {
       return;
     }
 
-    setHintPair(null);
+    setHintPairs([]);
 
     if (selectedIds.length === 0) {
       setSelectedIds([cellId]);
@@ -129,14 +130,14 @@ export default function App() {
 
     setGame(result.state);
     setSelectedIds([]);
-    setHintPair(null);
+    setHintPairs([]);
     setMessage("Последний ход отменён.");
   };
 
   const handleNewGame = () => {
     setGame(createNewGame());
     setSelectedIds([]);
-    setHintPair(null);
+    setHintPairs([]);
     setMessage("Новая игра начата.");
   };
 
@@ -150,21 +151,21 @@ export default function App() {
 
     setGame(result.state);
     setSelectedIds([]);
-    setHintPair(null);
+    setHintPairs([]);
     setMessage(`Выписано цифр: ${result.appendedCount}.`);
   };
 
   const handleCheckMoves = () => {
-    const pair = findAvailablePair(game);
+    const pairs = findAvailablePairs(game);
 
-    if (pair === null) {
-      setHintPair(null);
+    if (pairs.length === 0) {
+      setHintPairs([]);
       setMessage("Доступных пар сейчас нет.");
       return;
     }
 
-    setHintPair(pair);
-    setMessage(formatPairHint(game, pair));
+    setHintPairs(pairs);
+    setMessage(formatPairHint(game, pairs));
   };
 
   const victory = isVictory(game);
@@ -176,8 +177,8 @@ export default function App() {
           <p className="eyebrow">Grid Digits</p>
           <h1>Цифры в клетку</h1>
           <p className="hero-text">
-            Цель игры - сократить все цифры.
-            Порядок сокращения: либо парные цифры, либо цифры, сумма которых равна 10.
+            Цель игры - сократить все цифры. Порядок сокращения: либо парные
+            цифры, либо цифры, сумма которых равна 10.
           </p>
         </div>
         <ControlPanel
@@ -200,11 +201,10 @@ export default function App() {
         <GameBoard
           cells={game.cells}
           selectedIds={selectedIds}
-          hintPair={hintPair}
+          hintPairs={hintPairs}
           onCellClick={handleCellClick}
         />
       </section>
     </main>
   );
 }
-

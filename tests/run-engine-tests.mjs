@@ -4,6 +4,7 @@ import {
   createNewGame,
   crossPair,
   findAvailablePair,
+  findAvailablePairs,
 } from "../.temp-test-build/src/game/engine.js";
 
 function createState(values, crossedIndexes = []) {
@@ -68,6 +69,17 @@ runCase("findAvailablePair sees wrapped reading-order pairs", () => {
   const pair = findAvailablePair(state);
 
   assert.deepEqual(pair, { firstId: 9, secondId: 12 });
+});
+
+runCase("findAvailablePairs returns every valid pair for hint highlighting", () => {
+  const state = createState([1, 9, 2, 8, 5, 5]);
+  const pairs = findAvailablePairs(state);
+
+  assert.deepEqual(pairs, [
+    { firstId: 1, secondId: 2 },
+    { firstId: 3, secondId: 4 },
+    { firstId: 5, secondId: 6 },
+  ]);
 });
 
 runCase("new game starts with expected number of cells", () => {

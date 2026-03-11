@@ -43,11 +43,7 @@ function isPathClear(
   secondIndex: number,
   step: number,
 ): boolean {
-  for (
-    let index = firstIndex + step;
-    index !== secondIndex;
-    index += step
-  ) {
+  for (let index = firstIndex + step; index !== secondIndex; index += step) {
     if (!cells[index].crossed) {
       return false;
     }
@@ -112,8 +108,9 @@ export function validatePair(
   return null;
 }
 
-export function findAvailablePair(state: GameState): AvailablePair | null {
+export function findAvailablePairs(state: GameState): AvailablePair[] {
   const activeCells = state.cells.filter((cell) => !cell.crossed);
+  const pairs: AvailablePair[] = [];
 
   for (let firstIndex = 0; firstIndex < activeCells.length; firstIndex += 1) {
     for (
@@ -129,13 +126,17 @@ export function findAvailablePair(state: GameState): AvailablePair | null {
       }
 
       if (validatePair(state, firstCell.id, secondCell.id) === null) {
-        return {
+        pairs.push({
           firstId: firstCell.id,
           secondId: secondCell.id,
-        };
+        });
       }
     }
   }
 
-  return null;
+  return pairs;
+}
+
+export function findAvailablePair(state: GameState): AvailablePair | null {
+  return findAvailablePairs(state)[0] ?? null;
 }

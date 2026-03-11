@@ -9,7 +9,12 @@ export {
   restoreGameState,
   serializeGameState,
 } from "./state";
-export { findAvailablePair, getCellCoordinates, validatePair } from "./rules";
+export {
+  findAvailablePair,
+  findAvailablePairs,
+  getCellCoordinates,
+  validatePair,
+} from "./rules";
 export { GRID_WIDTH, START_SEQUENCE } from "./types";
 export type {
   AppendAttemptResult,
