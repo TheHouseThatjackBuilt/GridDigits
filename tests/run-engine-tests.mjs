@@ -1,11 +1,14 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import {
   GRID_WIDTH,
+  canCollapseRows,
   canUndo,
+  collapseCrossedRows,
   createNewGame,
   crossPair,
   findAvailablePair,
   findAvailablePairs,
+  isVictory,
   restoreGameState,
   serializeGameState,
   undoMove,
@@ -86,6 +89,88 @@ runCase("findAvailablePairs returns every valid pair for hint highlighting", () 
   ]);
 });
 
+runCase("collapseCrossedRows removes only fully crossed rows", () => {
+  const state = createState([
+    1, 2, 3, 4, 5, 6, 7, 8, 9,
+    9, 8, 7, 6, 5, 4, 3, 2, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+  ], [9, 10, 11, 12, 13, 14, 15, 16, 17]);
+
+  assert.equal(canCollapseRows(state), true);
+
+  const result = collapseCrossedRows(state);
+
+  assert.equal(result.ok, true);
+
+  if (!result.ok) {
+    throw new Error("Expected fully crossed rows to collapse.");
+  }
+
+  assert.equal(result.removedRowCount, 1);
+  assert.deepEqual(
+    result.state.cells.map((cell) => cell.id),
+    [...Array.from({ length: 9 }, (_, index) => index + 1), ...Array.from({ length: 9 }, (_, index) => index + 19)],
+  );
+});
+
+runCase("collapseCrossedRows keeps rows with at least one live digit", () => {
+  const state = createState([
+    1, 2, 3, 4, 5, 6, 7, 8, 9,
+    9, 8, 7, 6, 5, 4, 3, 2, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+  ], [
+    0, 1, 2, 3, 4, 5, 6, 7, 8,
+    9, 11, 12, 13, 14, 15, 16, 17,
+    18, 19, 20, 21, 22, 23, 24, 25, 26,
+  ]);
+  const result = collapseCrossedRows(state);
+
+  assert.equal(result.ok, true);
+
+  if (!result.ok) {
+    throw new Error("Expected rows with a live digit to stay on the board.");
+  }
+
+  assert.equal(result.removedRowCount, 2);
+  assert.deepEqual(
+    result.state.cells.map((cell) => cell.id),
+    Array.from({ length: 9 }, (_, index) => index + 10),
+  );
+});
+
+runCase("collapseCrossedRows reports when there is nothing to remove", () => {
+  const state = createState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const result = collapseCrossedRows(state);
+
+  assert.equal(canCollapseRows(state), false);
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, "no_rows");
+});
+
+runCase("collapseCrossedRows is undoable", () => {
+  const state = createState([
+    1, 2, 3, 4, 5, 6, 7, 8, 9,
+    9, 8, 7, 6, 5, 4, 3, 2, 1,
+  ], [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  const collapsed = collapseCrossedRows(state);
+
+  assert.equal(collapsed.ok, true);
+
+  if (!collapsed.ok) {
+    throw new Error("Expected row collapse to succeed.");
+  }
+
+  const undoResult = undoMove(collapsed.state);
+
+  assert.equal(undoResult.ok, true);
+
+  if (!undoResult.ok) {
+    throw new Error("Undo should restore the collapsed rows.");
+  }
+
+  assert.deepEqual(undoResult.state.cells, state.cells);
+});
+
 runCase("undo keeps only one previous step", () => {
   const firstMove = crossPair(createState([1, 9, 5, 5]), 1, 2);
 
@@ -135,6 +220,20 @@ runCase("serialized state restores without undo history", () => {
   assert.equal(restored.nextCellId, result.state.nextCellId);
   assert.equal(restored.history.length, 0);
   assert.deepEqual(restored.cells, result.state.cells);
+});
+
+runCase("victory remains true when collapsed rows leave an empty board", () => {
+  const state = createState([1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  const result = collapseCrossedRows(state);
+
+  assert.equal(result.ok, true);
+
+  if (!result.ok) {
+    throw new Error("Expected fully crossed board to collapse.");
+  }
+
+  assert.deepEqual(result.state.cells, []);
+  assert.equal(isVictory(result.state), true);
 });
 
 runCase("new game starts with expected number of cells", () => {

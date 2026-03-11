@@ -1,4 +1,4 @@
-import { getCellIndex } from "./helpers";
+﻿import { getCellIndex } from "./helpers.js";
 import type {
   AvailablePair,
   CellCoordinates,
@@ -6,7 +6,7 @@ import type {
   GameCell,
   GameState,
   PairFailureReason,
-} from "./types";
+} from "./types.js";
 
 function areDigitsCompatible(first: Digit, second: Digit): boolean {
   return first === second || first + second === 10;

@@ -1,23 +1,27 @@
-interface ControlPanelProps {
+﻿interface ControlPanelProps {
   moveCount: number;
   remainingCount: number;
   canUndo: boolean;
+  canCollapseRows: boolean;
   isVictory: boolean;
   onUndo: () => void;
   onNewGame: () => void;
   onWriteRemaining: () => void;
   onCheckMoves: () => void;
+  onCollapseRows: () => void;
 }
 
 export function ControlPanel({
   moveCount,
   remainingCount,
   canUndo,
+  canCollapseRows,
   isVictory,
   onUndo,
   onNewGame,
   onWriteRemaining,
   onCheckMoves,
+  onCollapseRows,
 }: ControlPanelProps) {
   return (
     <aside className="control-panel">
@@ -39,6 +43,14 @@ export function ControlPanel({
           onClick={onCheckMoves}
         >
           Есть ли ходы?
+        </button>
+        <button
+          type="button"
+          className="action-button action-button-secondary"
+          onClick={onCollapseRows}
+          disabled={!canCollapseRows}
+        >
+          Удалить пустые ряды
         </button>
         <button
           type="button"

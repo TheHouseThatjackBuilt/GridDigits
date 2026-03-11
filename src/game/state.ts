@@ -1,23 +1,41 @@
-import {
+﻿import {
   cloneCells,
   cloneSnapshot,
   createCellsFromDigits,
   digitsFromString,
   getCellIndex,
   snapshotState,
-} from "./helpers";
-import { validatePair } from "./rules";
-import { parseGameState, serializeGameState } from "./storage";
-import { GRID_WIDTH, START_SEQUENCE } from "./types";
+} from "./helpers.js";
+import { validatePair } from "./rules.js";
+import { parseGameState, serializeGameState } from "./storage.js";
+import { GRID_WIDTH, START_SEQUENCE } from "./types.js";
 import type {
   AppendAttemptResult,
+  CollapseRowsAttemptResult,
+  GameCell,
   GameState,
   PairAttemptResult,
   UndoAttemptResult,
-} from "./types";
+} from "./types.js";
 
 function createSingleStepHistory(state: GameState) {
   return [snapshotState(state)];
+}
+
+function getRows(cells: readonly GameCell[], width: number): GameCell[][] {
+  const rows: GameCell[][] = [];
+
+  for (let index = 0; index < cells.length; index += width) {
+    rows.push(cells.slice(index, index + width));
+  }
+
+  return rows;
+}
+
+function getFullyCrossedRowCount(state: GameState): number {
+  return getRows(state.cells, state.width).filter(
+    (row) => row.length > 0 && row.every((cell) => cell.crossed),
+  ).length;
 }
 
 export function createNewGame(): GameState {
@@ -42,12 +60,16 @@ export function canUndo(state: GameState): boolean {
   return state.history.length > 0;
 }
 
+export function canCollapseRows(state: GameState): boolean {
+  return getFullyCrossedRowCount(state) > 0;
+}
+
 export function getRemainingCount(state: GameState): number {
   return state.cells.filter((cell) => !cell.crossed).length;
 }
 
 export function isVictory(state: GameState): boolean {
-  return state.cells.length > 0 && getRemainingCount(state) === 0;
+  return getRemainingCount(state) === 0;
 }
 
 export function crossPair(
@@ -112,6 +134,37 @@ export function appendRemainingDigits(state: GameState): AppendAttemptResult {
       moveCount: state.moveCount + 1,
       history: createSingleStepHistory(state),
       nextCellId: state.nextCellId + appendedCells.length,
+    },
+  };
+}
+
+export function collapseCrossedRows(
+  state: GameState,
+): CollapseRowsAttemptResult {
+  const rows = getRows(state.cells, state.width);
+  const remainingRows = rows.filter(
+    (row) => row.length > 0 && row.some((cell) => !cell.crossed),
+  );
+  const removedRowCount = rows.length - remainingRows.length;
+
+  if (removedRowCount === 0) {
+    return {
+      ok: false,
+      state,
+      removedRowCount: 0,
+      reason: "no_rows",
+    };
+  }
+
+  return {
+    ok: true,
+    removedRowCount,
+    state: {
+      width: state.width,
+      cells: cloneCells(remainingRows.flat()),
+      moveCount: state.moveCount + 1,
+      history: createSingleStepHistory(state),
+      nextCellId: state.nextCellId,
     },
   };
 }

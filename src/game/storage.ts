@@ -1,6 +1,6 @@
-import { cloneCells, cloneSnapshot, isDigit, isRecord } from "./helpers";
-import { GRID_WIDTH } from "./types";
-import type { GameCell, GameSnapshot, GameState } from "./types";
+﻿import { cloneCells, cloneSnapshot, isDigit, isRecord } from "./helpers.js";
+import { GRID_WIDTH } from "./types.js";
+import type { GameCell, GameSnapshot, GameState } from "./types.js";
 
 interface PersistedGameState {
   width: number;

@@ -1,25 +1,28 @@
-export {
+﻿export {
+  appendRemainingDigits,
+  canCollapseRows,
   canUndo,
+  collapseCrossedRows,
   createNewGame,
   crossPair,
-  appendRemainingDigits,
-  undoMove,
   getRemainingCount,
   isVictory,
   restoreGameState,
   serializeGameState,
-} from "./state";
+  undoMove,
+} from "./state.js";
 export {
   findAvailablePair,
   findAvailablePairs,
   getCellCoordinates,
   validatePair,
-} from "./rules";
-export { GRID_WIDTH, START_SEQUENCE } from "./types";
+} from "./rules.js";
+export { GRID_WIDTH, START_SEQUENCE } from "./types.js";
 export type {
   AppendAttemptResult,
   AvailablePair,
   CellCoordinates,
+  CollapseRowsAttemptResult,
   Digit,
   GameCell,
   GameSnapshot,
@@ -27,4 +30,4 @@ export type {
   PairAttemptResult,
   PairFailureReason,
   UndoAttemptResult,
-} from "./types";
+} from "./types.js";

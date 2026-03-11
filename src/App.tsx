@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { ControlPanel } from "./components/ControlPanel";
 import { GameBoard } from "./components/GameBoard";
 import {
   appendRemainingDigits,
+  canCollapseRows,
   canUndo,
+  collapseCrossedRows,
   createNewGame,
   crossPair,
   findAvailablePairs,
@@ -159,6 +161,20 @@ export default function App() {
     setMessage(`Выписано цифр: ${result.appendedCount}.`);
   };
 
+  const handleCollapseRows = () => {
+    const result = collapseCrossedRows(game);
+
+    if (!result.ok) {
+      setMessage("Нет полностью зачёркнутых рядов.");
+      return;
+    }
+
+    setGame(result.state);
+    setSelectedIds([]);
+    setHintPairs([]);
+    setMessage(`Удалено рядов: ${result.removedRowCount}.`);
+  };
+
   const handleCheckMoves = () => {
     const pairs = findAvailablePairs(game);
 
@@ -173,6 +189,7 @@ export default function App() {
   };
 
   const victory = isVictory(game);
+  const collapseAvailable = canCollapseRows(game);
 
   return (
     <main className="app-shell">
@@ -189,11 +206,13 @@ export default function App() {
           moveCount={game.moveCount}
           remainingCount={getRemainingCount(game)}
           canUndo={canUndo(game)}
+          canCollapseRows={collapseAvailable}
           isVictory={victory}
           onUndo={handleUndo}
           onNewGame={handleNewGame}
           onWriteRemaining={handleWriteRemaining}
           onCheckMoves={handleCheckMoves}
+          onCollapseRows={handleCollapseRows}
         />
       </section>
 

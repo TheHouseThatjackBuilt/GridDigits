@@ -1,4 +1,4 @@
-export const GRID_WIDTH = 9;
+﻿export const GRID_WIDTH = 9;
 export const START_SEQUENCE = "123456789111213141516171819";
 
 export type Digit = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -73,4 +73,17 @@ export type UndoAttemptResult =
   | {
       ok: false;
       state: GameState;
+    };
+
+export type CollapseRowsAttemptResult =
+  | {
+      ok: true;
+      state: GameState;
+      removedRowCount: number;
+    }
+  | {
+      ok: false;
+      state: GameState;
+      removedRowCount: number;
+      reason: "no_rows";
     };

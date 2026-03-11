@@ -1,4 +1,4 @@
-import type { Digit, GameCell, GameSnapshot, GameState } from "./types";
+﻿import type { Digit, GameCell, GameSnapshot, GameState } from "./types.js";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
