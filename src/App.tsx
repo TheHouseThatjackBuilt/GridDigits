@@ -63,6 +63,7 @@ export default function App() {
   const [game, setGame] = useState<GameState>(getInitialGameState);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [hintPairs, setHintPairs] = useState<AvailablePair[]>([]);
+  const [recentlyCrossedIds, setRecentlyCrossedIds] = useState<number[]>([]);
   const [message, setMessage] = useState<string>(
     "Выберите две цифры в строке, столбце или через перенос строки.",
   );
@@ -74,6 +75,20 @@ export default function App() {
       console.warn("Failed to persist game state.", error);
     }
   }, [game]);
+
+  useEffect(() => {
+    if (recentlyCrossedIds.length === 0) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setRecentlyCrossedIds([]);
+    }, 720);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [recentlyCrossedIds]);
 
   const handleCellClick = (cellId: number) => {
     const clickedCell = game.cells.find((cell) => cell.id === cellId);
@@ -109,7 +124,11 @@ export default function App() {
       if (result.ok) {
         const nextGame = result.state;
         setGame(nextGame);
+        setRecentlyCrossedIds((currentIds) =>
+          Array.from(new Set([...currentIds, firstId, cellId])),
+        );
         setSelectedIds([]);
+        setHintPairs([]);
         setMessage(
           isVictory(nextGame)
             ? "Все цифры закрыты. Победа!"
@@ -225,6 +244,7 @@ export default function App() {
           cells={game.cells}
           selectedIds={selectedIds}
           hintPairs={hintPairs}
+          recentlyCrossedIds={recentlyCrossedIds}
           onCellClick={handleCellClick}
         />
       </section>

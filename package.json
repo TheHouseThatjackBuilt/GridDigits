@@ -11,6 +11,7 @@
     "test": "tsc -p tsconfig.test.json && node tests/run-engine-tests.mjs"
   },
   "dependencies": {
+    "motion": "^12.36.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
